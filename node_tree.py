@@ -10,9 +10,10 @@ class gl_NodeTreeCommon:
 			self.t_id = str(hash(self))
 		return self.t_id
 
-	def update_nodes(self):
-		for node in self.node_tree.nodes:
-			node.gl_update()
+	def update_nodes(self, context):
+		pass
+		# for node in self.node_tree.nodes:
+		# 	node.gl_update()
 
 class gl_NodeTree(NodeTree, gl_NodeTreeCommon):
 	bl_idname = "gl_NodeTree"
@@ -28,6 +29,20 @@ class gl_BaseNode:
 			self.n_id = str(hash(self))
 		return self.n_id
 
+	@property
+	def is_linked(self):
+		return bool([sock for sock in self.outputs if sock.is_linked])
+		'''
+		for sock in self.outputs:
+			if sock.is_linked:
+				return True
+		return False'''
+
+	def init(self, context):
+		# self.use_custom_color = True
+		# self.color = (0.1, 0.1, 0.1)
+		self.gl_init(context)
+
 	def free(self):
 		pass
 
@@ -37,12 +52,28 @@ class gl_BaseNode:
 	def update(self):
 		self.gl_update()
 
+	def get_linked_nodes(self):
+		nodes = []
+		for sock in self.outputs:
+			for link in sock.links:
+				nodes.append(link.to_node)
+		return nodes
+
+	def linked_update(self):
+		if self.outputs and self.is_linked:
+			nodes = self.get_linked_nodes()
+			for node in nodes:
+				node.gl_update()
+
 	# Override these methods
+	def gl_init(self, context):
+		pass
+
 	def gl_update(self):
 		pass
 
 def update_node(self, context):
-	self.id_data.update_nodes(self)
+	self.id_data.update_nodes(context)
 
 class gl_CustomTreeNode(gl_BaseNode):
 	node_cache = {}

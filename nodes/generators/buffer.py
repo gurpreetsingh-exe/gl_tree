@@ -25,7 +25,7 @@ void main() {
 	gl_FragColor = vec4(color, 1.0);
 }""")
 
-	def init(self, context):
+	def gl_init(self, context):
 		self.node_cache[self.node_id] = {}
 		self.inputs.new(type="NodeSocketFloat", name="Value")
 		self.outputs.new(type="NodeSocketFloat", name="Value")

@@ -1,21 +1,36 @@
 import bpy
-import gpu
 from bpy.types import Node
 
 from gl_tree.node_tree import gl_CustomTreeNode, update_node
+from mathutils import Vector
 
 class gl_NodeObjectPlane(Node, gl_CustomTreeNode):
 	bl_idname = "gl_NodeObjectPlane"
 	bl_label = "Plane"
 	bl_icon = 'MESH_PLANE'
 
-	scale: bpy.props.FloatProperty(default=1.0, update=update_node)
-
-	def init(self, context):
-		self.outputs.new(type="NodeSocketObject", name="Object")
+	def gl_init(self, context):
+		self.inputs.new(type="NodeSocketVector", name="Location")
+		self.inputs.new(type="gl_SocketFloat", name="Scale")
+		self.outputs.new(type="gl_SocketMesh", name="Mesh")
 
 	def gl_update(self):
-		print(self.n_id)
+		print("update")
+		if not self.inputs:
+			return
+
+		pos = Vector(self.inputs[0].default_value)
+		scale = self.inputs[1].value
+		data = (
+			pos + Vector([-scale, -scale, 0]),
+			pos + Vector([-scale,  scale, 0]),
+			pos + Vector([ scale, -scale, 0]),
+			pos + Vector([ scale,  scale, 0]))
+
+		print("Update")
+
+		self.outputs[0].gl_set(data)
+		self.linked_update()
 
 def register():
 	bpy.utils.register_class(gl_NodeObjectPlane)

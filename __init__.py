@@ -10,13 +10,13 @@ bl_info = {
 
 import bpy
 
-from . import node_tree
-from . import nodes
+from . import nodes, node_tree, sockets
 
-modules = [
+modules = (
 	nodes,
 	node_tree,
-]
+	sockets,
+)
 
 def register():
 	for mod in modules:

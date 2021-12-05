@@ -1,11 +1,13 @@
 from . import (
 	objects,
-	generators
+	generators,
+	viz,
 )
 
 modules = [
 	objects,
 	generators,
+	viz,
 ]
 
 def register():
