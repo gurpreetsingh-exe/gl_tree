@@ -1,35 +1,34 @@
 import bpy
 import gpu
+import bgl
+from gpu_extras.batch import batch_for_shader
 from bpy.types import Node
 
-from gl_tree.node_tree import gl_CustomTreeNode
+from gl_tree.node_tree import gl_CustomTreeNode, update_node
 
 class gl_NodeBuffer(Node, gl_CustomTreeNode):
 	bl_idname = "gl_NodeBuffer"
 	bl_label = "Buffer"
 	bl_icon = 'SHADERFX'
 
-	vert: bpy.props.StringProperty(name="Vertex Shader", default="""in vec2 a_position;
-out vec2 texCoord;
-
-void main() {
-	gl_Position = vec4(a_position, 0.0, 1.0);
-	texCoord = a_position;
-}""")
-
-	frag: bpy.props.StringProperty(name="Fragment Shader", default="""uniform vec2 u_resolution;
-void main() {
-	vec3 color = vec3(0.0);
-	vec2 st = gl_FragCoord.xy;
-	color.rg = st;
-	gl_FragColor = vec4(color, 1.0);
-}""")
+	size: bpy.props.IntProperty(default=256, update=update_node)
 
 	def gl_init(self, context):
 		self.node_cache[self.node_id] = {}
-		self.inputs.new(type="NodeSocketFloat", name="Value")
-		self.outputs.new(type="NodeSocketFloat", name="Value")
+		self.outputs.new(type="gl_SocketBuffer", name="Buffer")
 
+		data = bgl.Buffer(bgl.GL_BYTE, [self.size] * 2)
+		self.outputs[0].gl_set(data)
+
+	def gl_update(self):
+		if not self.outputs:
+			return
+
+		data = bgl.Buffer(bgl.GL_BYTE, [self.size] * 2)
+		self.outputs[0].gl_set(data)
+
+	def draw_buttons(self, context, layout):
+		layout.prop(self, "size")
 
 def register():
 	bpy.utils.register_class(gl_NodeBuffer)

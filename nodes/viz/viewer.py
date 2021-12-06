@@ -46,6 +46,18 @@ def draw_callback_px(self, **args):
 			e_shader.uniform_float("color", props.edge_color)
 			e_batch.draw(e_shader)
 			bgl.glDisable(bgl.GL_BLEND)
+	
+	elif self.viewer_type == 'SHADER':
+		data = self.node_dict[hash(self)]
+		offscreen = data['offscreen']
+		custom_batch = data['custom_batch']
+		custom_shader = data['custom_shader']
+
+		if custom_shader and custom_batch:
+			custom_shader.bind()
+			custom_shader.uniform_float("viewProjectionMatrix", bpy.context.region_data.perspective_matrix)
+			custom_shader.uniform_sampler("image", offscreen.texture_color)
+			custom_batch.draw(custom_shader)
 
 # Edge color [0.000000, 1.000000, 0.341914, 1.000000]
 # Vertex color [0.000000, 0.147027, 1.000000, 1.000000]
@@ -59,7 +71,32 @@ class gl_NodeMeshViewer(Node, gl_CustomTreeNode):
 	viewer_type: bpy.props.EnumProperty(items=(
 		('2D', '2D', '', 0),
 		('3D', '3D', '', 1),
+		('SHADER', 'Shader', '', 2),
 	), default='3D', update=update_node)
+
+	vertex_shader: bpy.props.StringProperty(default="""uniform mat4 viewProjectionMatrix;
+in vec2 position;
+in vec2 uv;
+
+out vec2 uvInterp;
+
+void main()
+{
+	uvInterp = uv;
+	gl_Position = viewProjectionMatrix * vec4(position, 0.0, 1.0);
+}
+""")
+
+	fragment_shader: bpy.props.StringProperty(default="""uniform sampler2D image;
+
+in vec2 uvInterp;
+out vec4 FragColor;
+
+void main()
+{
+	FragColor = texture(image, uvInterp);
+}
+""")
 
 	def create_shader(self, draw_type, coords, indices=None):
 		shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
@@ -99,6 +136,7 @@ class gl_NodeMeshViewer(Node, gl_CustomTreeNode):
 	def gl_init(self, context):
 		self.node_dict[hash(self)] = {}
 		self.inputs.new(type="gl_SocketMesh", name="Mesh")
+		self.inputs.new(type="gl_SocketBuffer", name="Buffer")
 
 	def gl_update(self):
 		if len(self.inputs) <= 0 and not self.inputs[0].is_linked:
@@ -108,10 +146,22 @@ class gl_NodeMeshViewer(Node, gl_CustomTreeNode):
 			return
 		else:
 			data = self.inputs[0].links[0].from_socket.gl_get()
+			offscreen = self.inputs[1].links[0].from_socket.gl_get()
+
 			cache = self.node_dict[hash(self)]
 			cache['positions'] = data
+			cache['offscreen'] = offscreen
 
-			if self.viewer_type == '3D':
+			custom_shader = gpu.types.GPUShader(self.vertex_shader, self.fragment_shader)
+			custom_batch = batch_for_shader(custom_shader, 'TRI_FAN', {
+				"position": ((-1, -1), (1, -1), (1, 1), (-1, 1)),
+				"uv": ((0, 0), (1, 0), (1, 1), (0, 1)),
+			})
+
+			cache['custom_batch'] = custom_batch
+			cache['custom_shader'] = custom_shader
+
+			if self.viewer_type in {'3D', 'SHADER'}:
 				self.create_batch()
 				if not cache.get('handler3d'):
 					handler3d = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, ((self,)), 'WINDOW', 'POST_VIEW')

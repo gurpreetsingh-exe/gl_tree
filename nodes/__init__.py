@@ -2,12 +2,14 @@ from . import (
 	objects,
 	generators,
 	viz,
+	shaders,
 )
 
 modules = [
 	objects,
 	generators,
 	viz,
+	shaders,
 ]
 
 def register():
