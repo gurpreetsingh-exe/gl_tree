@@ -8,6 +8,13 @@ class gl_SocketCommon():
 	def socket_id(self):
 		return str(hash(self.node.node_id) + hash(self))
 
+	@property
+	def value(self):
+		if self.links:
+			return self.links[0].from_socket.gl_get(self)
+		else:
+			return self.value
+
 	def draw(self, context, layout, node, text):
 		layout.label(text=self.bl_label)
 
@@ -55,9 +62,24 @@ class gl_SocketFloat(NodeSocket, gl_SocketCommon):
 		else:
 			layout.prop(self, "value", text=self.name)
 
+class gl_SocketVector(NodeSocket, gl_SocketCommon):
+	bl_idname = "gl_SocketVector"
+	bl_label = "Vector"
+	color = (0.3, 0.1, 0.7, 1.0)
+
+	value: bpy.props.FloatVectorProperty(size=3, update=process_socket, precision=3)
+
+	def draw(self, context, layout, label, text):
+		if self.is_linked:
+			layout.label(text=self.name)
+		else:
+			col = layout.column()
+			col.prop(self, "value", text=self.name)
+
 classes = (
 	gl_SocketMesh,
 	gl_SocketFloat,
+	gl_SocketVector,
 )
 
 def register():

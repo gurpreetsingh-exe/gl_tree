@@ -34,7 +34,6 @@ def draw_callback_px(self, **args):
 		shader = data['shader']
 		batch = data['batch']
 		if batch and shader:
-			print(batch, shader)
 			shader.bind()
 			shader.uniform_float("color", (0, 0.6, 0.8, 1.0))
 			batch.draw(shader)
@@ -55,7 +54,6 @@ class gl_NodeMeshViewer(Node, gl_CustomTreeNode):
 		coords = data['positions']
 		if coords:
 			coords = [tuple(co) for co in coords]
-			print(coords)
 			shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
 			indices = ([0, 1, 2], [2, 3, 1])
 			batch = batch_for_shader(shader, 'TRIS', {"pos": coords}, indices=indices)

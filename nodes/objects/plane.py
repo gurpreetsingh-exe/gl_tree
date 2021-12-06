@@ -10,7 +10,7 @@ class gl_NodeObjectPlane(Node, gl_CustomTreeNode):
 	bl_icon = 'MESH_PLANE'
 
 	def gl_init(self, context):
-		self.inputs.new(type="NodeSocketVector", name="Location")
+		self.inputs.new(type="gl_SocketVector", name="Location")
 		self.inputs.new(type="gl_SocketFloat", name="Scale")
 		self.outputs.new(type="gl_SocketMesh", name="Mesh")
 
@@ -19,7 +19,7 @@ class gl_NodeObjectPlane(Node, gl_CustomTreeNode):
 		if not self.inputs:
 			return
 
-		pos = Vector(self.inputs[0].default_value)
+		pos = Vector(self.inputs[0].value)
 		scale = self.inputs[1].value
 		data = (
 			pos + Vector([-scale, -scale, 0]),
