@@ -15,7 +15,6 @@ class gl_NodeObjectPlane(Node, gl_CustomTreeNode):
 		self.outputs.new(type="gl_SocketMesh", name="Mesh")
 
 	def gl_update(self):
-		print("update")
 		if not self.inputs:
 			return
 
@@ -26,8 +25,6 @@ class gl_NodeObjectPlane(Node, gl_CustomTreeNode):
 			pos + Vector([-scale,  scale, 0]),
 			pos + Vector([ scale, -scale, 0]),
 			pos + Vector([ scale,  scale, 0]))
-
-		print("Update")
 
 		self.outputs[0].gl_set(data)
 		self.linked_update()

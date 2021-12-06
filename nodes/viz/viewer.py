@@ -1,12 +1,14 @@
 import bpy
 import blf
 import gpu
+import bgl
 from gpu_extras.batch import batch_for_shader
 from bpy.types import Node
 
 from gl_tree.node_tree import gl_CustomTreeNode, update_node
 from gl_tree.sockets import process_socket
-from mathutils import Vector
+
+import numpy as np
 
 def draw_callback_px(self, **args):
 	if self.viewer_type == '2D':
@@ -31,12 +33,22 @@ def draw_callback_px(self, **args):
 
 	elif self.viewer_type == '3D':
 		data = self.node_dict[hash(self)]
-		shader = data['shader']
-		batch = data['batch']
-		if batch and shader:
-			shader.bind()
-			shader.uniform_float("color", (0, 0.6, 0.8, 1.0))
-			batch.draw(shader)
+		p_shader, p_batch = data['p_shader'], data['p_batch']
+		e_shader, e_batch = data['e_shader'], data['e_batch']
+
+		if e_batch and p_shader:
+			props = self.generate_props()
+			bgl.glEnable(bgl.GL_BLEND)
+			p_shader.bind()
+			p_shader.uniform_float("color", props.face_color)
+			p_batch.draw(p_shader)
+			e_shader.bind()
+			e_shader.uniform_float("color", props.edge_color)
+			e_batch.draw(e_shader)
+			bgl.glDisable(bgl.GL_BLEND)
+
+# Edge color [0.000000, 1.000000, 0.341914, 1.000000]
+# Vertex color [0.000000, 0.147027, 1.000000, 1.000000]
 
 class gl_NodeMeshViewer(Node, gl_CustomTreeNode):
 	bl_idname = "gl_NodeMeshViewer"
@@ -49,16 +61,37 @@ class gl_NodeMeshViewer(Node, gl_CustomTreeNode):
 		('3D', '3D', '', 1),
 	), default='3D', update=update_node)
 
+	def create_shader(self, draw_type, coords, indices=None):
+		shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
+		batch = None
+		if indices:
+			batch = batch_for_shader(shader, draw_type, {"pos": coords}, indices=indices)
+		else:
+			batch = batch_for_shader(shader, draw_type, {"pos": coords})
+
+		return shader, batch
+
+	def generate_props(self):
+		props = lambda: None
+		props.face_color = (0.071, 0.508, 2.0, 0.5)
+		props.edge_color = (0.0, 2.0, 0.683, 1.0)
+		return props
+
 	def create_batch(self):
 		data = self.node_dict[hash(self)]
 		coords = data['positions']
 		if coords:
-			coords = [tuple(co) for co in coords]
-			shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
 			indices = ([0, 1, 2], [2, 3, 1])
-			batch = batch_for_shader(shader, 'TRIS', {"pos": coords}, indices=indices)
-			data['batch'] = batch
-			data['shader'] = shader
+			edge_coords = list(coords)
+			edge_coords[2], edge_coords[3] = edge_coords[3], edge_coords[2]
+			edge_coords = list(np.roll(np.array(edge_coords), -3))
+
+			shift_pos = list(np.roll(np.array(edge_coords), -3))
+			edges = np.array([(p0, p1) for p0, p1 in zip(edge_coords, shift_pos)]).flatten()
+			edges = list(edges.reshape(-1, 3))
+
+			data['p_shader'], data['p_batch'] = self.create_shader('TRIS', coords, indices)
+			data['e_shader'], data['e_batch'] = self.create_shader('LINES', edges)
 
 	def draw_buttons(self, context, layout):
 		layout.prop(self, "viewer_type", text="Type")
