@@ -130,6 +130,9 @@ void main()
 			data['p_shader'], data['p_batch'] = self.create_shader('TRIS', coords, indices)
 			data['e_shader'], data['e_batch'] = self.create_shader('LINES', edges)
 
+		if data['object']:
+			pass
+
 	def draw_buttons(self, context, layout):
 		layout.prop(self, "viewer_type", text="Type")
 
