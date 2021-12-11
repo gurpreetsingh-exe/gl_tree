@@ -1,6 +1,7 @@
 import bpy
 from bpy.types import Node
 
+from gl_tree.data_structure import Mesh
 from gl_tree.node_tree import gl_CustomTreeNode, update_node
 from mathutils import Vector
 
@@ -20,11 +21,14 @@ class gl_NodeObjectPlane(Node, gl_CustomTreeNode):
 
 		pos = Vector(self.inputs[0].value)
 		scale = self.inputs[1].value
-		data = (
+		vertices = (
 			pos + Vector([-scale, -scale, 0]),
 			pos + Vector([-scale,  scale, 0]),
 			pos + Vector([ scale, -scale, 0]),
 			pos + Vector([ scale,  scale, 0]))
+		indices = ((0, 1, 2), (2, 3, 1))
+		edges = ((2, 0), (0, 1), (1, 3), (3, 2))
+		data = Mesh(vertices, edges, indices)
 
 		self.outputs[0].gl_set(data)
 		self.linked_update()
