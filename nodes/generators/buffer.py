@@ -21,9 +21,6 @@ class gl_NodeBuffer(Node, gl_CustomTreeNode):
 		self.outputs[0].gl_set(data)
 
 	def gl_update(self):
-		if not self.outputs:
-			return
-
 		data = bgl.Buffer(bgl.GL_BYTE, [self.size] * 2)
 		self.outputs[0].gl_set(data)
 

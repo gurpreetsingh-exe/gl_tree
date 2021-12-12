@@ -29,9 +29,6 @@ void main() {
 		self.outputs.new(type="gl_SocketShader", name="Shader")
 
 	def gl_update(self):
-		if not self.outputs:
-			return
-
 		offscreen = gpu.types.GPUOffScreen(256, 256)
 		with offscreen.bind():
 			shader = gpu.types.GPUShader(self.vert, self.frag)

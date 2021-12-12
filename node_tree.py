@@ -22,6 +22,7 @@ class gl_NodeTree(NodeTree, gl_NodeTreeCommon):
 
 class gl_BaseNode:
 	n_id: bpy.props.StringProperty(options={'SKIP_SAVE'})
+	init_node: bpy.props.BoolProperty(default=False)
 
 	@property
 	def node_id(self):
@@ -39,9 +40,8 @@ class gl_BaseNode:
 		return False'''
 
 	def init(self, context):
-		# self.use_custom_color = True
-		# self.color = (0.1, 0.1, 0.1)
 		self.gl_init(context)
+		self.init_node = True
 
 	def free(self):
 		pass
@@ -50,7 +50,8 @@ class gl_BaseNode:
 		pass
 
 	def update(self):
-		self.gl_update()
+		if self.init_node:
+			self.gl_update()
 
 	def get_linked_nodes(self):
 		nodes = []

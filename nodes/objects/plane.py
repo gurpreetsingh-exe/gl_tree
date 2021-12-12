@@ -16,9 +16,6 @@ class gl_NodeObjectPlane(Node, gl_CustomTreeNode):
 		self.outputs.new(type="gl_SocketMesh", name="Mesh")
 
 	def gl_update(self):
-		if not all((self.inputs, self.outputs)):
-			return
-
 		pos = Vector(self.inputs[0].value)
 		scale = self.inputs[1].value
 		vertices = (

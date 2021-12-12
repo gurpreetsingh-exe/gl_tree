@@ -93,7 +93,7 @@ void main()
 
 	def gl_update(self):
 		data = self.node_dict[hash(self)]
-		if not self.inputs or not self.inputs[0].is_linked:
+		if not self.inputs[0].is_linked:
 			if data.get('handler'):
 				bpy.types.SpaceView3D.draw_handler_remove(data.get('handler'), 'WINDOW')
 				tag_redraw_all_3dviews()
@@ -115,9 +115,10 @@ void main()
 
 	def free(self):
 		data = self.node_dict[hash(self)]
-		handler = data['handler']
-		bpy.types.SpaceView3D.draw_handler_remove(handler, 'WINDOW')
-		data.pop('handler')
+		handler = data.get('handler')
+		if handler:
+			bpy.types.SpaceView3D.draw_handler_remove(handler, 'WINDOW')
+			data.pop('handler')
 
 def register():
 	bpy.utils.register_class(gl_NodeMeshViewer)
