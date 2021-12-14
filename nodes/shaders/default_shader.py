@@ -27,12 +27,12 @@ void main() {
 
 	def gl_init(self, context):
 		self.inputs.new(type="gl_SocketMesh", name="Mesh")
-		self.outputs.new(type="gl_SocketShader", name="Shader")
+		self.outputs.new(type="gl_SocketColor", name="Color")
 
 	def gl_update(self):
 		if not self.inputs[0].links:
 			return
-		
+
 		mesh = self.inputs[0].links[0].from_socket.gl_get()
 
 		width = height = 512
