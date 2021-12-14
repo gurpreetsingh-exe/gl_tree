@@ -31,13 +31,12 @@ class gl_BaseNode:
 		return self.n_id
 
 	@property
-	def is_linked(self):
+	def is_output_linked(self):
 		return bool([sock for sock in self.outputs if sock.is_linked])
-		'''
-		for sock in self.outputs:
-			if sock.is_linked:
-				return True
-		return False'''
+
+	@property
+	def is_input_linked(self):
+		return bool([sock for sock in self.inputs if sock.is_linked])
 
 	def init(self, context):
 		self.gl_init(context)
@@ -61,7 +60,7 @@ class gl_BaseNode:
 		return nodes
 
 	def linked_update(self):
-		if self.outputs and self.is_linked:
+		if self.is_output_linked:
 			nodes = self.get_linked_nodes()
 			for node in nodes:
 				node.gl_update()
@@ -88,7 +87,7 @@ from nodeitems_utils import NodeCategory, NodeItem, register_node_categories, un
 
 class gl_NodeCategory(NodeCategory):
 	@classmethod
-	def polll(cls, context):
+	def poll(cls, context):
 		return context.space_data.tree_type == "gl_NodeTree"
 
 classes = [

@@ -15,7 +15,7 @@ class gl_NodeBuffer(Node, gl_CustomTreeNode):
 
 	def gl_init(self, context):
 		self.node_cache[self.node_id] = {}
-		self.outputs.new(type="gl_SocketBuffer", name="Buffer")
+		self.outputs.new(type="gl_SocketColor", name="Color")
 
 		data = bgl.Buffer(bgl.GL_BYTE, [self.size] * 2)
 		self.outputs[0].gl_set(data)

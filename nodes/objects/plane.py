@@ -25,7 +25,9 @@ class gl_NodeObjectPlane(Node, gl_CustomTreeNode):
 			pos + Vector([ scale,  scale, 0]))
 		indices = ((0, 1, 2), (2, 3, 1))
 		edges = ((2, 0), (0, 1), (1, 3), (3, 2))
-		data = Mesh(vertices, edges, indices)
+		uv = ((0, 0), (0, 1), (1, 0), (1, 1))
+
+		data = Mesh(vertices, edges, indices, uv)
 
 		self.outputs[0].gl_set(data)
 		self.linked_update()

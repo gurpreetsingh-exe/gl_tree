@@ -76,10 +76,10 @@ class gl_SocketVector(NodeSocket, gl_SocketCommon):
 			col = layout.column()
 			col.prop(self, "value", text=self.name)
 
-class gl_SocketBuffer(NodeSocket, gl_SocketCommon):
-	bl_idname = "gl_SocketBuffer"
-	bl_label = "Buffer"
-	color = (0.0, 1.0, 0.5, 1.0)
+class gl_SocketColor(NodeSocket, gl_SocketCommon):
+	bl_idname = "gl_SocketColor"
+	bl_label = "Color"
+	color = (1.0, 1.0, 0.0, 1.0)
 
 
 class gl_SocketShader(NodeSocket, gl_SocketCommon):
@@ -93,7 +93,7 @@ classes = (
 	gl_SocketFloat,
 	gl_SocketVector,
 
-	gl_SocketBuffer,
+	gl_SocketColor,
 	gl_SocketShader,
 )
 

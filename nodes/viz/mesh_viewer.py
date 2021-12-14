@@ -8,17 +8,9 @@ from bpy.types import Node
 from gl_tree.data_structure import Mesh
 from gl_tree.node_tree import gl_CustomTreeNode, update_node
 from gl_tree.sockets import process_socket
+from gl_tree.utils import tag_redraw_all_3dviews
 
 import numpy as np
-
-def tag_redraw_all_3dviews():
-	for window in bpy.context.window_manager.windows:
-		for area in window.screen.areas:
-			if area.type == 'VIEW_3D':
-				for region in area.regions:
-					if region.type == 'WINDOW':
-						region.tag_redraw()
-
 
 def draw_callback_px(self, **args):
 	data = self.node_dict[hash(self)]
