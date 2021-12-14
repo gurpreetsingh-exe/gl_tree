@@ -1,5 +1,6 @@
 import bpy
-from bpy.types import Node, NodeTree
+from bpy.types import Node, NodeTree, PropertyGroup
+from bpy.props import EnumProperty, IntProperty, PointerProperty
 
 class gl_NodeTreeCommon:
 	t_id: bpy.props.StringProperty(default="")
@@ -11,9 +12,19 @@ class gl_NodeTreeCommon:
 		return self.t_id
 
 	def update_nodes(self, context):
-		pass
-		# for node in self.node_tree.nodes:
-		# 	node.gl_update()
+		for node in self.nodes:
+			node.gl_update()
+
+	resolution: EnumProperty(name="Resolution", items=(
+		(   '128',    '128', '', 0),
+		(   '256',    '256', '', 1),
+		(   '512',    '512', '', 2),
+		(  '1024',   '1024', '', 3),
+		(  '2048',   '2048', '', 4),
+		('CUSTOM', 'Custom', '', 5)
+	), default='1024', update=update_nodes)
+
+	custom_resolution: IntProperty(name="Custom", default=1024, update=update_nodes)
 
 class gl_NodeTree(NodeTree, gl_NodeTreeCommon):
 	bl_idname = "gl_NodeTree"

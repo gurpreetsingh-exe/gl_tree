@@ -35,7 +35,7 @@ void main() {
 
 		mesh = self.inputs[0].links[0].from_socket.gl_get()
 
-		width = height = 512
+		width = height = self.id_data.custom_resolution if self.id_data.resolution == "CUSTOM" else int(self.id_data.resolution)
 		offscreen = gpu.types.GPUOffScreen(width, height)
 		with offscreen.bind():
 			shader = gpu.types.GPUShader(self.vert, self.frag)
