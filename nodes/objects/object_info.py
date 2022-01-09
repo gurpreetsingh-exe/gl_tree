@@ -47,9 +47,7 @@ class gl_NodeObjectInfo(Node, gl_CustomTreeNode):
 		self.outputs.new(type="gl_SocketMesh", name="Mesh")
 
 	def draw_buttons(self, context, layout):
-		op = layout.operator("gl.get_selection")
-		op.node_name = self.name
-		op.tree_name = self.id_data.name
+		self.draw_operator(layout, "gl.get_selection")
 
 	def gl_update(self):
 		global selection

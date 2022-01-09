@@ -19,10 +19,11 @@ def draw_callback_px(self, **args):
 		shader.bind()
 		shader.uniform_float("viewProjectionMatrix", bpy.context.region_data.perspective_matrix)
 		shader.uniform_sampler("image", color)
-		bgl.glEnable(bgl.GL_DEPTH_TEST)
+		# bgl.glEnable(bgl.GL_DEPTH_TEST)
+		# bgl.glEnable(bgl.GL_BLEND)
 		batch.draw(shader)
-		bgl.glDisable(bgl.GL_DEPTH_TEST)
-
+		# bgl.glDisable(bgl.GL_BLEND)
+		# bgl.glDisable(bgl.GL_DEPTH_TEST)
 
 class gl_NodeTextureViewer(Node, gl_CustomTreeNode):
 	bl_idname = "gl_NodeTextureViewer"
@@ -56,7 +57,6 @@ void main()
 
 	def gl_init(self, context):
 		self.node_dict[hash(self)] = {}
-		self.inputs.new(type="gl_SocketMesh", name="Mesh")
 		self.inputs.new(type="gl_SocketColor", name="Color")
 
 	def create_batch(self, mesh):
@@ -72,17 +72,14 @@ void main()
 
 	def gl_update(self):
 		data = self.node_dict[hash(self)]
-		if not self.is_input_linked:
-			return
-
-		mesh = self.inputs[0].links[0].from_socket.gl_get()
-		self.create_batch(mesh)
-
-		if not self.inputs[1].links:
+		if not self.inputs[0].is_linked:
 			self.free()
 			return
 
-		data['color'] = self.inputs[1].links[0].from_socket.gl_get()
+		mesh = self.id_data.mesh
+		self.create_batch(mesh)
+		data['color'] = self.inputs[0].links[0].from_socket.gl_get()
+		tag_redraw_all_3dviews()
 
 		if not data.get('handler'):
 			data['handler'] = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, ((self,)), 'WINDOW', 'POST_VIEW')

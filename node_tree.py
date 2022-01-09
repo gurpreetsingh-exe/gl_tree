@@ -2,6 +2,8 @@ import bpy
 from bpy.types import Node, NodeTree, PropertyGroup
 from bpy.props import EnumProperty, IntProperty, PointerProperty
 
+from gl_tree.data_structure import Mesh
+
 class gl_NodeTreeCommon:
 	t_id: bpy.props.StringProperty(default="")
 
@@ -25,6 +27,15 @@ class gl_NodeTreeCommon:
 	), default='1024', update=update_nodes)
 
 	custom_resolution: IntProperty(name="Custom", default=1024, update=update_nodes)
+
+	mesh = Mesh(vertices=(
+		(-1, -1,  0),
+		(-1,  1,  0),
+		( 1, -1,  0),
+		( 1,  1,  0)),
+	indices=((0, 1, 2), (2, 3, 1)),
+	uv=((0, 0), (0, 1), (1, 0), (1, 1)))
+
 
 class gl_NodeTree(NodeTree, gl_NodeTreeCommon):
 	bl_idname = "gl_NodeTree"
@@ -75,6 +86,11 @@ class gl_BaseNode:
 			nodes = self.get_linked_nodes()
 			for node in nodes:
 				node.gl_update()
+
+	def draw_operator(self, layout, bl_idname):
+		op = layout.operator(bl_idname)
+		op.node_name = self.name
+		op.tree_name = self.id_data.name
 
 	# Override these methods
 	def gl_init(self, context):

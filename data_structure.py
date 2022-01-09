@@ -3,7 +3,8 @@ class Mesh:
 		self.vertices = vertices
 		self.edges = edges
 		self.indices = indices
-		self.edges_flat = self.calc_edges()
+		if self.edges:
+			self.edges_flat = self.calc_edges()
 		self.uv = uv
 
 	def calc_edges(self):

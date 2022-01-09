@@ -3,6 +3,7 @@ from . import (
 	generators,
 	viz,
 	shaders,
+	util_nodes,
 )
 
 modules = [
@@ -10,6 +11,7 @@ modules = [
 	generators,
 	viz,
 	shaders,
+	util_nodes,
 ]
 
 def register():

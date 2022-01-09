@@ -26,21 +26,17 @@ void main() {
 }""")
 
 	def gl_init(self, context):
-		self.inputs.new(type="gl_SocketMesh", name="Mesh")
 		self.outputs.new(type="gl_SocketColor", name="Color")
 
 	def gl_update(self):
-		if not self.inputs[0].links:
-			return
-
-		mesh = self.inputs[0].links[0].from_socket.gl_get()
+		mesh = self.id_data.mesh
 
 		width = height = self.id_data.custom_resolution if self.id_data.resolution == "CUSTOM" else int(self.id_data.resolution)
 		offscreen = gpu.types.GPUOffScreen(width, height)
 		with offscreen.bind():
 			shader = gpu.types.GPUShader(self.vert, self.frag)
 			batch = batch_for_shader(shader, 'TRIS', {
-				"a_position": ((-1, -1, 0), (-1, 1, 0), (1, -1, 0), (1, 1, 0)),
+				"a_position": mesh.vertices,
 				"uv": mesh.uv,
 			}, indices=mesh.indices)
 			batch.draw(shader)
